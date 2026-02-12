@@ -13,6 +13,7 @@
       border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.1);
     }
 
+    /* ===== AJUSTE: TÍTULO (Guincho GV + 24 Horas em vermelho, maior, sublinhado) ===== */
     .titulo{
       text-align:center;
       font-size:40px;
@@ -22,7 +23,6 @@
     }
     .titulo .vermelho{ color:#c00000; }
 
-    /* Logo sem espaço “fantasma” */
     .logo{ text-align:center; margin:0; line-height:0; }
     .logo img{ display:block; margin:0 auto; max-width:260px; width:100%; height:auto; }
 
@@ -34,45 +34,42 @@
       border:1px solid #cfd6dd; border-radius:8px;
     }
 
-    /* Botões */
+    /* ===== AJUSTE: BOTÕES PRINCIPAIS (ficam abaixo dos campos) ===== */
     .botoes{
       display:flex; gap:12px; justify-content:center; align-items:center;
       flex-wrap:wrap; margin-top:12px;
     }
-
-    /* ====== AJUSTE AQUI ====== */
-    /* Em desktop, mantém bom tamanho, mas permite quebrar com responsividade */
     .botoes button{
-      flex: 0 1 220px;        /* base 220px, mas pode encolher/expandir conforme tela */
+      flex: 0 1 220px;
       padding:12px;
       font-size:16px;
       border:none;
       border-radius:10px;
       color:#fff;
       cursor:pointer;
-      width:auto;             /* remove travas */
-      max-width:220px;        /* limita no desktop */
+      width:auto;
+      max-width:220px;
     }
 
-    /* No celular: 3 botões por linha */
+    /* AJUSTE: no celular, 3 botões por linha (quando couber) */
     @media (max-width: 520px){
       body{ padding:12px; }
       .container{ padding:14px; }
 
       .botoes{ gap:10px; }
-
       .botoes button{
-        flex: 1 1 calc(33.333% - 10px); /* 3 por linha */
-        max-width: none;                 /* libera largura */
-        padding:12px 8px;                /* cabe melhor */
+        flex: 1 1 calc(33.333% - 10px);
+        max-width:none;
+        padding:12px 8px;
         font-size:14px;
       }
 
-      /* opcional: título menor no celular */
       .titulo{ font-size:32px; }
-      input{ min-width: 100%; }          /* inputs ficam 1 por linha no celular */
+      input{ min-width:100%; }
+
+      /* seletor em 1 coluna no celular */
+      .selectors-grid{ grid-template-columns: 1fr; }
     }
-    /* ====== FIM DO AJUSTE ====== */
 
     .btn-azul{ background:#1a73e8; } .btn-azul:hover{ background:#1558b0; }
     .btn-verde{ background:#16a34a; } .btn-verde:hover{ background:#15803d; }
@@ -90,6 +87,96 @@
 
     footer{ margin-top:25px; text-align:center; font-size:14px; color:#666; }
     footer b{ color:#000; }
+
+    /* ===== AJUSTE: SELETORES EM BOTÕES (abaixo dos botões principais) ===== */
+    .selectors{
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #e5e7eb;
+      background:#fafafa;
+    }
+    .selectors h3{
+      margin:0 0 10px 0;
+      font-size:16px;
+    }
+    .required-badge{
+      color:#c00000;
+      font-weight:900;
+    }
+    .selectors-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr; /* 2 cards lado a lado quando couber */
+      gap:12px;
+    }
+    .selector-card{
+      padding:12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
+    }
+    .selector-label{
+      font-weight:900;
+      margin:0 0 10px 0;
+    }
+
+    /*
+      ===== AJUSTE (POLIMENTO):
+      - Deixa as opções em UMA LINHA quando houver espaço
+      - Se não couber, ativa rolagem horizontal suave (sem quebrar feio)
+    */
+    .selector-options{
+      display:flex;
+      gap:10px;
+      flex-wrap:nowrap;              /* <-- linha única */
+      overflow-x:auto;               /* <-- rolagem se não couber */
+      -webkit-overflow-scrolling: touch;
+      padding-bottom:4px;            /* respiro para rolagem */
+    }
+
+    /* Esconde a scrollbar “gorda” (mantém rolagem) */
+    .selector-options::-webkit-scrollbar { height: 6px; }
+    .selector-options::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+    .selector-options::-webkit-scrollbar-track { background: transparent; }
+
+    .opt-btn{
+      border:1px solid #d1d5db;
+      background:#fff;
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:800;
+      transition: transform .03s ease, background .15s ease, border-color .15s ease, color .15s ease;
+      user-select:none;
+      white-space:nowrap;
+      flex: 0 0 auto; /* garante tamanho natural (linha única) */
+    }
+    .opt-btn:active{ transform: scale(0.98); }
+
+    /* VEÍCULO (azul) */
+    .opt-btn.vehicle{ border-color:#b9d3ff; color:#1558b0; }
+    .opt-btn.vehicle.selected{ background:#1a73e8; border-color:#1a73e8; color:#fff; }
+
+    /* SITUAÇÃO (vermelho) */
+    .opt-btn.situacao{ border-color:#ffc2c2; color:#a80000; }
+    .opt-btn.situacao.selected{ background:#c00000; border-color:#c00000; color:#fff; }
+
+    /*
+      ===== AJUSTE (POLIMENTO MOBILE):
+      - No celular os botões de seleção ficam padronizados (2 por linha)
+      - Sem rolagem horizontal, porque vira grid visual
+    */
+    @media (max-width: 520px){
+      .selector-options{
+        flex-wrap:wrap;            /* volta a quebrar */
+        overflow-x:visible;        /* remove rolagem */
+        padding-bottom:0;
+      }
+      .opt-btn{
+        flex: 1 1 calc(50% - 10px); /* 2 por linha, largura igual */
+        text-align:center;
+      }
+    }
 
     /* Modal */
     .modal{
@@ -117,23 +204,56 @@
       <img src="logo-gv-guincho.png" alt="GV Guincho" />
     </div>
 
-    <h2>Calcular rota, tempo e distância (carro)</h2>
+    <h2>Calcular rota, tempo e distância</h2>
 
+    <!-- 1) CAMPOS DE ENDEREÇO -->
     <div class="linha">
       <input id="origem" placeholder="Endereço de origem" />
       <input id="destino" placeholder="Endereço de destino" />
     </div>
 
+    <!-- 2) BOTÕES PRINCIPAIS (abaixo dos campos) -->
     <div class="botoes">
-      <button class="btn-verde" id="btnLocalizacao">📍 Localização</button>
+      <button class="btn-verde" id="btnLocalizacao">📍 Minha localização</button>
       <button class="btn-cinza" id="btnInverter">🔁 Inverter</button>
       <button class="btn-azul" id="btnCalcular">Calcular</button>
       <button class="btn-wpp" id="btnWhats">💬 WhatsApp</button>
     </div>
 
+    <!-- 3) SELETORES (abaixo dos botões principais) -->
+    <div class="selectors">
+      <h3>Selecione as opções <span class="required-badge">(obrigatório)</span></h3>
+
+      <div class="selectors-grid">
+        <div class="selector-card">
+          <div class="selector-label">Tipo de veículo <span class="required-badge">*</span></div>
+          <div class="selector-options">
+            <button type="button" class="opt-btn vehicle" data-group="veiculo" data-value="Carro pequeno">Carro pequeno</button>
+            <button type="button" class="opt-btn vehicle" data-group="veiculo" data-value="SUV">SUV</button>
+            <button type="button" class="opt-btn vehicle" data-group="veiculo" data-value="Vans">Vans</button>
+            <button type="button" class="opt-btn vehicle" data-group="veiculo" data-value="Moto">Moto</button>
+          </div>
+        </div>
+
+        <div class="selector-card">
+          <div class="selector-label">Tipo de situação <span class="required-badge">*</span></div>
+          <div class="selector-options">
+            <button type="button" class="opt-btn situacao" data-group="situacao" data-value="Pane">Pane</button>
+            <button type="button" class="opt-btn situacao" data-group="situacao" data-value="Bateria">Bateria</button>
+            <button type="button" class="opt-btn situacao" data-group="situacao" data-value="Pneu">Pneu</button>
+            <button type="button" class="opt-btn situacao" data-group="situacao" data-value="Acidente">Acidente</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="muted">
+        Essas opções vão no orçamento e na mensagem do WhatsApp.
+      </div>
+    </div>
+
     <div id="resultado">
-      Preencha os endereços e clique em <b>Calcular</b>.
-      <div class="muted">Dica: clique em <b>📍 Localização</b> para preencher a origem automaticamente.</div>
+      Preencha os endereços, selecione as opções e clique em <b>Calcular</b>.
+      <div class="muted">Dica: clique em <b>📍 Minha localização</b> para preencher a origem automaticamente.</div>
     </div>
 
     <div id="map"></div>
@@ -157,11 +277,36 @@
   </div>
 
   <script>
+    /*
+      ============================
+      AJUSTE DESTA VERSÃO (LÓGICA DE PREÇO):
+      - Toda vez que clicar em "Calcular", o preço será:
+        (TARIFA_BASE + (KM * VALOR_POR_KM) + TAXA_SITUACAO) * MULTIPLICADOR_VEICULO
+      ============================
+    */
+
     let map, directionsService, directionsRenderer, geocoder;
 
-    // ======= PREÇOS (edite aqui quando quiser) =======
-    let TARIFA_BASE = 50.00;   // valor fixo (R$)
-    let VALOR_POR_KM = 4.50;   // valor por km (R$)
+    // ======= PREÇOS BASE =======
+    let TARIFA_BASE = 180.00;   // valor fixo (R$)
+    let VALOR_POR_KM = 5.00;    // valor por km (R$)
+
+    // ======= MULTIPLICADOR POR VEÍCULO =======
+    // (valores conforme você pediu)
+    const MULTIPLICADOR_VEICULO = {
+      "Carro pequeno": 1.0,
+      "Vans": 1.3,
+      "SUV": 1.2,
+      "Moto": 0.8
+    };
+
+    // ======= TAXA POR SITUAÇÃO =======
+    const TAXA_SITUACAO = {
+      "Pane": 0,
+      "Bateria": 0,
+      "Pneu": 0,
+      "Acidente": 0
+    };
 
     // ======= WHATSAPP =======
     const WHATSAPP_NUMERO = "5527995993430"; // DDI55 + DDD + número
@@ -172,6 +317,13 @@
     // Última localização capturada pelo 📍 (lat/lng)
     let ultimaLocalizacao = null; // { lat, lng } ou null
 
+    // Seleções (botões)
+    let selecaoVeiculo = "";
+    let selecaoSituacao = "";
+
+    // Snapshot do estado no momento do último cálculo (para detectar mudança e forçar recálculo)
+    let ultimoSnapshot = null;
+
     function brl(v) {
       return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
@@ -180,7 +332,64 @@
       document.getElementById("resultado").innerHTML = html;
     }
 
+    function validarSelecoesOuAvisar() {
+      if (!selecaoVeiculo || !selecaoSituacao) {
+        setResultado("<span class='erro'>Selecione <b>Tipo de veículo</b> e <b>Tipo de situação</b> antes de continuar.</span>");
+        return false;
+      }
+      return true;
+    }
+
+    function snapshotAtual() {
+      return {
+        origem: document.getElementById("origem").value.trim(),
+        destino: document.getElementById("destino").value.trim(),
+        veiculo: selecaoVeiculo,
+        situacao: selecaoSituacao
+      };
+    }
+
+    function mudouDesdeUltimoCalculo() {
+      if (!ultimoSnapshot) return true;
+      const s = snapshotAtual();
+      return (
+        s.origem !== ultimoSnapshot.origem ||
+        s.destino !== ultimoSnapshot.destino ||
+        s.veiculo !== ultimoSnapshot.veiculo ||
+        s.situacao !== ultimoSnapshot.situacao
+      );
+    }
+
+    function initSelectors() {
+      document.querySelectorAll(".opt-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const group = btn.dataset.group;
+          const value = btn.dataset.value;
+
+          if (group === "veiculo") {
+            selecaoVeiculo = value;
+            document.querySelectorAll(".opt-btn.vehicle").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+          } else if (group === "situacao") {
+            selecaoSituacao = value;
+            document.querySelectorAll(".opt-btn.situacao").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+          }
+
+          // mudou seleção => invalida o último cálculo, força recálculo no WhatsApp
+          ultimoResumo = null;
+          ultimoSnapshot = null;
+        });
+      });
+
+      // mudando origem/destino também invalida cálculo
+      document.getElementById("origem").addEventListener("input", () => { ultimoResumo = null; ultimoSnapshot = null; });
+      document.getElementById("destino").addEventListener("input", () => { ultimoResumo = null; ultimoSnapshot = null; });
+    }
+
     function initMap() {
+      initSelectors();
+
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: -20.3155, lng: -40.3128 }, // Vitória/ES (padrão)
         zoom: 12
@@ -198,18 +407,24 @@
       // Botões
       document.getElementById("btnLocalizacao").addEventListener("click", usarMinhaLocalizacao);
       document.getElementById("btnInverter").addEventListener("click", inverter);
-      document.getElementById("btnCalcular").addEventListener("click", calcularRota);
-      document.getElementById("btnWhats").addEventListener("click", abrirModal);
+
+      // Calcular: calcula e abre modal
+      document.getElementById("btnCalcular").addEventListener("click", () => {
+        calcularRota({ abrirModalDepois: true });
+      });
+
+      // WhatsApp força recálculo se houver origem+destino e algo mudou
+      document.getElementById("btnWhats").addEventListener("click", abrirWhatsComDadosAtualizados);
 
       document.getElementById("btnCancelar").addEventListener("click", fecharModal);
       document.getElementById("btnEnviar").addEventListener("click", enviarWhats);
 
       // Enter no destino = calcular
       document.getElementById("destino").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") calcularRota();
+        if (e.key === "Enter") calcularRota({ abrirModalDepois: true });
       });
 
-      // Tenta localização automática apenas se já estiver permitida (sem incomodar)
+      // Tenta localização automática apenas se já estiver permitida
       tentarLocalizacaoAutomatica();
     }
 
@@ -246,13 +461,14 @@
               document.getElementById("origem").value = results[0].formatted_address;
               setResultado("Origem preenchida com sua localização. Agora informe o destino e clique em <b>Calcular</b>.");
             } else {
-              // fallback
               document.getElementById("origem").value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
               setResultado("Localização obtida, mas não foi possível converter para endereço. Preenchemos com coordenadas.");
             }
           });
 
+          // Invalida último cálculo
           ultimoResumo = null;
+          ultimoSnapshot = null;
         },
         (err) => {
           const msg =
@@ -271,10 +487,16 @@
       const tmp = o.value;
       o.value = d.value;
       d.value = tmp;
+
+      // Invalida cálculo
       ultimoResumo = null;
+      ultimoSnapshot = null;
     }
 
-    function calcularRota() {
+    // Calcula rota e (opcionalmente) abre modal
+    function calcularRota({ abrirModalDepois } = {}) {
+      if (!validarSelecoesOuAvisar()) return;
+
       const origem = document.getElementById("origem").value.trim();
       const destino = document.getElementById("destino").value.trim();
 
@@ -282,6 +504,8 @@
         setResultado("<span class='erro'>Informe origem e destino.</span>");
         return;
       }
+
+      const taxaSituacao = TAXA_SITUACAO[selecaoSituacao] ?? 0;
 
       directionsService.route(
         {
@@ -299,9 +523,17 @@
 
           const rota = response.routes[0].legs[0];
           const km = rota.distance.value / 1000;
-          const total = TARIFA_BASE + (km * VALOR_POR_KM);
 
-          // Link da "Minha localização" (prioriza lat/lng capturados no 📍; senão usa o endereço de origem)
+          // ======= AQUI USAMOS AS VARIÁVEIS DO VEÍCULO =======
+          // subtotal = tarifa base + (km * valor/km) + taxa
+          const subtotal = (TARIFA_BASE + (km * VALOR_POR_KM)) + taxaSituacao;
+
+          // multiplicador do veículo selecionado
+          const multiplicador = MULTIPLICADOR_VEICULO[selecaoVeiculo] ?? 1;
+
+          // total final
+          const total = subtotal * multiplicador;
+
           const linkMinhaLocalizacao = ultimaLocalizacao
             ? `https://www.google.com/maps/search/?api=1&query=${ultimaLocalizacao.lat},${ultimaLocalizacao.lng}`
             : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(rota.start_address)}`;
@@ -315,19 +547,52 @@
             linkMinhaLocalizacao
           };
 
+          // snapshot para “amarrar” o orçamento ao estado atual
+          ultimoSnapshot = snapshotAtual();
+
           setResultado(`
+            <b>Tipo de veículo:</b> ${selecaoVeiculo}<br>
+            <b>Tipo de situação:</b> ${selecaoSituacao}<br><br>
             <b>Origem:</b> ${rota.start_address}<br>
             <b>Destino:</b> ${rota.end_address}<br><br>
             <b>Distância:</b> ${rota.distance.text}<br>
             <b>Tempo estimado:</b> ${rota.duration.text}<br><br>
             <b>Valor estimado:</b> ${brl(total)}<br>
-            <span class="muted">(${brl(TARIFA_BASE)} + ${km.toFixed(2)} km × ${brl(VALOR_POR_KM)})</span>
+            <span class="muted">
+              ((${brl(TARIFA_BASE)} + ${km.toFixed(2)} km × ${brl(VALOR_POR_KM)} + taxa ${brl(taxaSituacao)}) × multiplicador ${multiplicador.toFixed(1)})
+            </span>
           `);
+
+          if (abrirModalDepois) abrirModal();
         }
       );
     }
 
+    // WhatsApp “amarra” recalculando antes (se tiver origem+destino)
+    function abrirWhatsComDadosAtualizados() {
+      if (!validarSelecoesOuAvisar()) return;
+
+      const origem = document.getElementById("origem").value.trim();
+      const destino = document.getElementById("destino").value.trim();
+
+      // Se tem origem+destino, garante orçamento atualizado
+      if (origem && destino) {
+        if (!ultimoResumo || mudouDesdeUltimoCalculo()) {
+          setResultado("Atualizando orçamento…");
+          calcularRota({ abrirModalDepois: true });
+          return;
+        }
+        // já está atualizado
+        abrirModal();
+        return;
+      }
+
+      // Sem origem/destino: abre modal e manda mensagem curta (sem redundância)
+      abrirModal();
+    }
+
     function abrirModal() {
+      if (!validarSelecoesOuAvisar()) return;
       document.getElementById("nomeCliente").value = "";
       document.getElementById("modalNome").style.display = "flex";
       setTimeout(() => document.getElementById("nomeCliente").focus(), 50);
@@ -344,17 +609,23 @@
         return;
       }
 
+      if (!validarSelecoesOuAvisar()) {
+        alert("Selecione o Tipo de veículo e o Tipo de situação (obrigatório).");
+        return;
+      }
+
       const origem = document.getElementById("origem").value.trim();
       const destino = document.getElementById("destino").value.trim();
 
-      let msg = `Olá! Meu nome é ${nome}.\nGostaria de solicitar atendimento de guincho e um orçamento. 🚗🛻\n`;
-
-      // Link "Minha localização" (se capturou no 📍 usa lat/lng; senão usa a origem digitada)
-      const linkMinhaLocalizacao = ultimaLocalizacao
+      const linkMinhaLocalizacaoFallback = ultimaLocalizacao
         ? `https://www.google.com/maps/search/?api=1&query=${ultimaLocalizacao.lat},${ultimaLocalizacao.lng}`
         : (origem ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(origem)}` : "");
 
-      // Caso 1: já calculou
+      // Mensagem objetiva (sem redundância)
+      let msg = `Olá! Meu nome é ${nome}.\nQuero solicitar guincho e orçamento.\n`;
+      msg += `\nTipo de veículo: ${selecaoVeiculo}\nTipo de situação: ${selecaoSituacao}\n`;
+
+      // Caso 1: já calculou => envia com orçamento completo
       if (ultimoResumo) {
         const protocolo = "GV-" + Date.now().toString().slice(-6);
 
@@ -362,26 +633,18 @@
         msg += `Origem: ${ultimoResumo.origem}\nDestino: ${ultimoResumo.destino}\n`;
         msg += `Distância: ${ultimoResumo.distancia}\nTempo estimado: ${ultimoResumo.tempo}\n`;
         msg += `Orçamento estimado: ${ultimoResumo.preco}\n`;
-
-        if (ultimoResumo.linkMinhaLocalizacao) {
-          msg += `\nMinha localização: ${ultimoResumo.linkMinhaLocalizacao}\n`;
-        } else if (linkMinhaLocalizacao) {
-          msg += `\nMinha localização: ${linkMinhaLocalizacao}\n`;
-        }
+        msg += `\nMinha localização: ${ultimoResumo.linkMinhaLocalizacao || linkMinhaLocalizacaoFallback}\n`;
       }
-      // Caso 2: não calculou, mas tem origem e destino
+      // Caso 2: não calculou, mas tem origem/destino
       else if (origem && destino) {
         msg += `\nOrigem: ${origem}\nDestino: ${destino}\n`;
         msg += `\nPode me passar o orçamento para esse trajeto?\n`;
-
-        if (linkMinhaLocalizacao) {
-          msg += `\nMinha localização: ${linkMinhaLocalizacao}\n`;
-        }
+        if (linkMinhaLocalizacaoFallback) msg += `\nMinha localização: ${linkMinhaLocalizacaoFallback}\n`;
       }
-      // Caso 3: não preencheu nada
+      // Caso 3: não preencheu origem/destino => mensagem curta
       else {
-        msg += `\nEstou com necessidade de guincho. Pode me informar como funciona e o valor aproximado?\n`;
-        msg += `\n(Se precisar, posso enviar minha localização e o destino.)\n`;
+        msg += `\nPode me atender e passar um orçamento?\n`;
+        if (linkMinhaLocalizacaoFallback) msg += `\nMinha localização: ${linkMinhaLocalizacaoFallback}\n`;
       }
 
       const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
@@ -395,7 +658,7 @@
   <script
     async
     defer
-   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCCNAa-Zu-wK5Bov5P1rNYgubIhrICYaM&libraries=places&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCCNAa-Zu-wK5Bov5P1rNYgubIhrICYaM&libraries=places&callback=initMap">
     </script>
 </body>
 </html>
