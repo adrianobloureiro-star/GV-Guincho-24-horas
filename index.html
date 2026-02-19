@@ -34,7 +34,7 @@
       border:1px solid #cfd6dd; border-radius:8px;
     }
 
-    /* ===== AJUSTE: BOTÕES PRINCIPAIS (ficam abaixo dos campos) ===== */
+    /* ===== BOTÕES ===== */
     .botoes{
       display:flex; gap:12px; justify-content:center; align-items:center;
       flex-wrap:wrap; margin-top:12px;
@@ -204,7 +204,7 @@
       <img src="logo-gv-guincho.png" alt="GV Guincho" />
     </div>
 
-    <h2>Calcular rota, tempo e distância</h2>
+    <h2>Calcular a Rota, Tempo e Valor do seu Guincho</h2>
 
     <!-- 1) CAMPOS DE ENDEREÇO -->
     <div class="linha">
@@ -212,15 +212,14 @@
       <input id="destino" placeholder="Endereço de destino" />
     </div>
 
-    <!-- 2) BOTÕES PRINCIPAIS (abaixo dos campos) -->
+    <!-- 2) BOTÕES PRINCIPAIS (fluxo inicial) -->
     <div class="botoes">
       <button class="btn-verde" id="btnLocalizacao">📍 Minha localização</button>
       <button class="btn-cinza" id="btnInverter">🔁 Inverter</button>
-      <button class="btn-azul" id="btnCalcular">Calcular</button>
       <button class="btn-wpp" id="btnWhats">💬 WhatsApp</button>
     </div>
 
-    <!-- 3) SELETORES (abaixo dos botões principais) -->
+    <!-- 3) SELETORES -->
     <div class="selectors">
       <h3>Selecione as opções <span class="required-badge">(obrigatório)</span></h3>
 
@@ -249,6 +248,11 @@
       <div class="muted">
         Essas opções vão no orçamento e na mensagem do WhatsApp.
       </div>
+    </div>
+
+    <!-- 4) CALCULAR (agora abaixo dos seletores, seguindo fluxo natural) -->
+    <div class="botoes">
+      <button class="btn-azul" id="btnCalcular">Calcular</button>
     </div>
 
     <div id="resultado">
@@ -408,9 +412,9 @@
       document.getElementById("btnLocalizacao").addEventListener("click", usarMinhaLocalizacao);
       document.getElementById("btnInverter").addEventListener("click", inverter);
 
-      // Calcular: calcula e abre modal
+      // Calcular: calcula (não abre modal)
       document.getElementById("btnCalcular").addEventListener("click", () => {
-        calcularRota({ abrirModalDepois: true });
+        calcularRota({ abrirModalDepois: false });
       });
 
       // WhatsApp força recálculo se houver origem+destino e algo mudou
@@ -419,23 +423,34 @@
       document.getElementById("btnCancelar").addEventListener("click", fecharModal);
       document.getElementById("btnEnviar").addEventListener("click", enviarWhats);
 
-      // Enter no destino = calcular
+      // Enter no destino = calcular (não abre modal)
       document.getElementById("destino").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") calcularRota({ abrirModalDepois: true });
+        if (e.key === "Enter") calcularRota({ abrirModalDepois: false });
       });
 
-      // Tenta localização automática apenas se já estiver permitida
+      // ✅ AJUSTE: ao abrir a página, tenta preencher a origem automaticamente
+      // (vai pedir permissão se estiver em "prompt")
       tentarLocalizacaoAutomatica();
     }
 
+    // ✅ AJUSTE AQUI: agora tenta também quando o estado é "prompt"
     async function tentarLocalizacaoAutomatica() {
       try {
         if (!navigator.geolocation) return;
 
         if (navigator.permissions?.query) {
           const p = await navigator.permissions.query({ name: "geolocation" });
-          if (p.state === "granted") usarMinhaLocalizacao();
+
+          // granted: preenche sem popup
+          // prompt: o navegador vai abrir popup ao carregar (o que você pediu)
+          if (p.state === "granted" || p.state === "prompt") {
+            usarMinhaLocalizacao();
+          }
+          return;
         }
+
+        // Sem Permissions API: tenta mesmo assim (pode abrir popup)
+        usarMinhaLocalizacao();
       } catch (_) {}
     }
 
@@ -524,7 +539,6 @@
           const rota = response.routes[0].legs[0];
           const km = rota.distance.value / 1000;
 
-          // ======= AQUI USAMOS AS VARIÁVEIS DO VEÍCULO =======
           // subtotal = tarifa base + (km * valor/km) + taxa
           const subtotal = (TARIFA_BASE + (km * VALOR_POR_KM)) + taxaSituacao;
 
