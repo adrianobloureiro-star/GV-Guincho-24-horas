@@ -106,7 +106,7 @@
     }
     .selectors-grid{
       display:grid;
-      grid-template-columns: 1fr 1fr; /* 2 cards lado a lado quando couber */
+      grid-template-columns: 1fr 1fr;
       gap:12px;
     }
     .selector-card{
@@ -198,7 +198,7 @@
       <input id="destino" placeholder="Endereço de destino" />
     </div>
 
-    <!-- 2) BOTÕES PRINCIPAIS (fluxo inicial) -->
+    <!-- 2) BOTÕES PRINCIPAIS -->
     <div class="botoes">
       <button class="btn-verde" id="btnLocalizacao">📍 Minha localização</button>
       <button class="btn-cinza" id="btnInverter">🔁 Inverter</button>
@@ -236,7 +236,7 @@
       </div>
     </div>
 
-    <!-- 4) CALCULAR (agora abaixo dos seletores, seguindo fluxo natural) -->
+    <!-- 4) CALCULAR -->
     <div class="botoes">
       <button class="btn-azul" id="btnCalcular">Calcular</button>
     </div>
@@ -280,6 +280,7 @@
       3) WHATSAPP:
          - Se NÃO houver cálculo (sem origem/destino), abre direto a conversa pedindo orçamento com atendente (sem modal).
          - Se houver cálculo atualizado, abre modal para nome e envia mensagem estruturada com orçamento.
+         - SEMPRE envia a localização atual (se disponível), com ou sem cálculo.
 
       4) AUTOCOMPLETE:
          - Places autocomplete só inicia após 3 letras digitadas.
@@ -289,13 +290,13 @@
     let map, directionsService, directionsRenderer, geocoder;
 
     // ======= PREÇOS BASE =======
-    let TARIFA_BASE = 180.00;   // valor fixo (R$)
-    let VALOR_POR_KM = 5.00;    // valor por km (R$)
+    let TARIFA_BASE = 180.00;
+    let VALOR_POR_KM = 5.00;
 
     // ======= ADICIONAL NOTURNO (22:00 às 06:00) =======
-    const ADICIONAL_NOTURNO = 50.00;     // ajuste aqui (R$)
-    const HORA_INICIO_NOTURNO = 22;      // 22h
-    const HORA_FIM_NOTURNO = 6;          // 6h
+    const ADICIONAL_NOTURNO = 50.00;
+    const HORA_INICIO_NOTURNO = 22;
+    const HORA_FIM_NOTURNO = 6;
 
     function emHorarioNoturno(data = new Date()) {
       const h = data.getHours();
@@ -319,19 +320,19 @@
     };
 
     // ======= WHATSAPP =======
-    const WHATSAPP_NUMERO = "5527995993430"; // DDI55 + DDD + número
+    const WHATSAPP_NUMERO = "5527995993430";
 
     // Último cálculo (quando houver)
     let ultimoResumo = null;
 
     // Última localização capturada pelo 📍 (lat/lng)
-    let ultimaLocalizacao = null; // { lat, lng } ou null
+    let ultimaLocalizacao = null;
 
     // Seleções (botões)
     let selecaoVeiculo = "";
     let selecaoSituacao = "";
 
-    // Snapshot do estado no momento do último cálculo (para detectar mudança e forçar recálculo)
+    // Snapshot do estado no momento do último cálculo
     let ultimoSnapshot = null;
 
     // Autocomplete (iniciar somente após 3 letras)
@@ -597,25 +598,47 @@
       );
     }
 
+    // ✅ Sempre inclui localização (se disponível)
+    function montarLinkLocalizacao() {
+      if (ultimaLocalizacao) {
+        return `https://www.google.com/maps/search/?api=1&query=${ultimaLocalizacao.lat},${ultimaLocalizacao.lng}`;
+      }
+
+      const origem = document.getElementById("origem").value.trim();
+      if (origem) {
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(origem)}`;
+      }
+
+      return "";
+    }
+
     function abrirWhatsComDadosAtualizados() {
       if (!validarSelecoesOuAvisar()) return;
 
       const origem = document.getElementById("origem").value.trim();
       const destino = document.getElementById("destino").value.trim();
+      const linkLocalizacao = montarLinkLocalizacao();
 
+      // Sem origem/destino => conversa direta (sem modal), com localização
       if (!origem || !destino) {
-        const msg = `Olá, gostaria de fazer um orçamento com atendente.\n\nVeículo: ${selecaoVeiculo}\nSituação: ${selecaoSituacao}`;
+        let msg = `Olá, gostaria de fazer um orçamento com atendente.\n\n`;
+        msg += `Veículo: ${selecaoVeiculo}\n`;
+        msg += `Situação: ${selecaoSituacao}\n`;
+        if (linkLocalizacao) msg += `\n📍 Minha localização atual:\n${linkLocalizacao}\n`;
+
         const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
         window.open(url, "_blank");
         return;
       }
 
+      // Tem origem+destino => garante orçamento atualizado
       if (!ultimoResumo || mudouDesdeUltimoCalculo()) {
         setResultado("Atualizando orçamento…");
         calcularRota({ abrirModalDepois: true });
         return;
       }
 
+      // Já está calculado e atualizado => pede nome e envia estruturado
       abrirModal();
     }
 
@@ -630,6 +653,7 @@
       document.getElementById("modalNome").style.display = "none";
     }
 
+    // ✅ Com ou sem cálculo, sempre manda localização (se existir)
     function enviarWhats() {
       const nome = document.getElementById("nomeCliente").value.trim();
       if (!nome) {
@@ -642,6 +666,7 @@
         return;
       }
 
+      const linkLocalizacao = montarLinkLocalizacao();
       let msg = "";
 
       if (ultimoResumo) {
@@ -657,11 +682,19 @@
           msg += `Adicional noturno (22h–06h): ${brl(ultimoResumo.adicionalNoturno)}\n`;
         }
         msg += `Valor estimado: ${ultimoResumo.preco}\n`;
+
+        if (linkLocalizacao) {
+          msg += `\n📍 Minha localização atual:\n${linkLocalizacao}\n`;
+        }
       } else {
-        msg += `Olá, me chamo ${nome}.\n`;
+        msg += `Olá, me chamo ${nome}.\n\n`;
         msg += `Gostaria de fazer um orçamento com atendente.\n\n`;
         msg += `Veículo: ${selecaoVeiculo}\n`;
         msg += `Situação: ${selecaoSituacao}\n`;
+
+        if (linkLocalizacao) {
+          msg += `\n📍 Minha localização atual:\n${linkLocalizacao}\n`;
+        }
       }
 
       const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
